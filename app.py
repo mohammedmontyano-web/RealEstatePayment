@@ -94,43 +94,46 @@ def number_to_arabic_text(num):
 def ceiling(number):
     return int(-(-number // 1))
 
-# إعداد واجهة Streamlit
-st.title("نظام جدول دفعات العقارات")
+# دالة لتهيئة حالة الجلسة
+def initialize_session_state():
+    if "step" not in st.session_state:
+        st.session_state.step = 1
+    if "data" not in st.session_state or not isinstance(st.session_state.data, dict):
+        st.session_state.data = {
+            "unit_name": "",
+            "start_date": None,
+            "period_type": "",
+            "periods_per_year": 0,
+            "period_months": 0,
+            "total_installments": 0,
+            "years": 0,
+            "total_price": 0.0,
+            "down_payment": 0.0,
+            "delivery_payment": 0.0,
+            "add_extra_payment": "",
+            "extra_installments": [],
+            "extra_amounts": [],
+            "add_annual_payment": "",
+            "annual_payment": 0.0,
+            "add_fixed_amount": "",
+            "fixed_installments": [],
+            "fixed_amount": 0.0,
+            "add_date_payment": "",
+            "date_payments": [],
+            "date_amounts": [],
+            "total_remaining": 0.0,
+            "modify_finish_total": "",
+            "finish_total": 0.0,
+            "finish_down": 0.0,
+            "finish_installments": 0
+        }
+    if "extra_payment_temp" not in st.session_state:
+        st.session_state.extra_payment_temp = {"installment_num": 1, "amount": 0.0}
+    if "extra_payment_key" not in st.session_state:
+        st.session_state.extra_payment_key = 0
 
-# إنشاء جلسة لحفظ البيانات
-if "step" not in st.session_state:
-    st.session_state.step = 1
-    st.session_state.data = {
-        "unit_name": "",
-        "start_date": None,
-        "period_type": "",
-        "periods_per_year": 0,
-        "period_months": 0,
-        "total_installments": 0,
-        "years": 0,
-        "total_price": 0.0,
-        "down_payment": 0.0,
-        "delivery_payment": 0.0,
-        "add_extra_payment": "",
-        "extra_installments": [],
-        "extra_amounts": [],
-        "add_annual_payment": "",
-        "annual_payment": 0.0,
-        "add_fixed_amount": "",
-        "fixed_installments": [],
-        "fixed_amount": 0.0,
-        "add_date_payment": "",
-        "date_payments": [],
-        "date_amounts": [],
-        "total_remaining": 0.0,
-        "modify_finish_total": "",
-        "finish_total": 0.0,
-        "finish_down": 0.0,
-        "finish_installments": 0
-    }
-# إضافة مفتاح مؤقت للدفعات الإضافية
-if "extra_payment_temp" not in st.session_state:
-    st.session_state.extra_payment_temp = {"installment_num": 1, "amount": 0.0}
+# استدعاء التهيئة في بداية التطبيق
+initialize_session_state()
 
 # دالة للتحقق من صحة التاريخ
 def is_valid_date(date_str):
@@ -150,6 +153,9 @@ def clean_unit_name(unit_name):
     unit_name = re.sub(r'[:\\*/?"<>|]', '', unit_name)
     return unit_name[:25]
 
+# إعداد واجهة Streamlit
+st.title("نظام جدول دفعات العقارات")
+
 # الخطوات المتسلسلة
 if st.session_state.step == 1:
     st.header("الخطوة 1: إدخال اسم الوحدة")
@@ -165,6 +171,8 @@ if st.session_state.step == 1:
         st.session_state.step = 1
         st.session_state.data = {}
         st.session_state.extra_payment_temp = {"installment_num": 1, "amount": 0.0}
+        st.session_state.extra_payment_key = 0
+        initialize_session_state()
         st.rerun()
 
 elif st.session_state.step == 2:
@@ -183,6 +191,8 @@ elif st.session_state.step == 2:
         st.session_state.step = 1
         st.session_state.data = {}
         st.session_state.extra_payment_temp = {"installment_num": 1, "amount": 0.0}
+        st.session_state.extra_payment_key = 0
+        initialize_session_state()
         st.rerun()
 
 elif st.session_state.step == 3:
@@ -211,6 +221,8 @@ elif st.session_state.step == 3:
         st.session_state.step = 1
         st.session_state.data = {}
         st.session_state.extra_payment_temp = {"installment_num": 1, "amount": 0.0}
+        st.session_state.extra_payment_key = 0
+        initialize_session_state()
         st.rerun()
 
 elif st.session_state.step == 4:
@@ -236,6 +248,8 @@ elif st.session_state.step == 4:
         st.session_state.step = 1
         st.session_state.data = {}
         st.session_state.extra_payment_temp = {"installment_num": 1, "amount": 0.0}
+        st.session_state.extra_payment_key = 0
+        initialize_session_state()
         st.rerun()
 
 elif st.session_state.step == 5:
@@ -255,6 +269,8 @@ elif st.session_state.step == 5:
         st.session_state.step = 1
         st.session_state.data = {}
         st.session_state.extra_payment_temp = {"installment_num": 1, "amount": 0.0}
+        st.session_state.extra_payment_key = 0
+        initialize_session_state()
         st.rerun()
 
 elif st.session_state.step == 6:
@@ -271,6 +287,8 @@ elif st.session_state.step == 6:
         st.session_state.step = 1
         st.session_state.data = {}
         st.session_state.extra_payment_temp = {"installment_num": 1, "amount": 0.0}
+        st.session_state.extra_payment_key = 0
+        initialize_session_state()
         st.rerun()
 
 elif st.session_state.step == 7:
@@ -288,6 +306,8 @@ elif st.session_state.step == 7:
         st.session_state.step = 1
         st.session_state.data = {}
         st.session_state.extra_payment_temp = {"installment_num": 1, "amount": 0.0}
+        st.session_state.extra_payment_key = 0
+        initialize_session_state()
         st.rerun()
 
 elif st.session_state.step == 8:
@@ -300,22 +320,28 @@ elif st.session_state.step == 8:
         with st.container():
             col1, col2, col3 = st.columns([2, 2, 1])
             with col1:
-                installment_num = st.number_input("أدخل رقم القسط:", min_value=1, max_value=st.session_state.data["total_installments"], step=1, key=f"installment_num_{st.session_state.get('extra_payment_key', 0)}")
+                installment_num = st.number_input("أدخل رقم القسط:", min_value=1, max_value=st.session_state.data["total_installments"], step=1, key=f"installment_num_{st.session_state.extra_payment_key}")
             with col2:
-                amount = st.number_input("أدخل مبلغ الدفعة الإضافية:", min_value=0.0, step=1000.0, key=f"amount_{st.session_state.get('extra_payment_key', 0)}")
+                amount = st.number_input("أدخل مبلغ الدفعة الإضافية:", min_value=0.0, step=1000.0, key=f"amount_{st.session_state.extra_payment_key}")
             with col3:
-                if st.button("تأكيد الدفعة", key=f"confirm_extra_{st.session_state.get('extra_payment_key', 0)}"):
+                if st.button("تأكيد الدفعة", key=f"confirm_extra_{st.session_state.extra_payment_key}"):
+                    # التأكد من وجود extra_installments و extra_amounts
+                    if "extra_installments" not in st.session_state.data:
+                        st.session_state.data["extra_installments"] = []
+                    if "extra_amounts" not in st.session_state.data:
+                        st.session_state.data["extra_amounts"] = []
+                    # التحقق من عدم تكرار رقم القسط
                     if installment_num not in st.session_state.data["extra_installments"]:
                         st.session_state.data["extra_installments"].append(installment_num)
                         st.session_state.data["extra_amounts"].append(amount)
                         st.session_state.extra_payment_temp = {"installment_num": 1, "amount": 0.0}  # إعادة تعيين الحقول
-                        st.session_state["extra_payment_key"] = st.session_state.get("extra_payment_key", 0) + 1  # تحديث المفتاح
+                        st.session_state.extra_payment_key += 1  # تحديث المفتاح
                         st.success(f"تم إضافة دفعة إضافية للقسط {installment_num}")
                     else:
-                        st.error("رقم القسط مكرر!")
+                        st.error("رقم القسط مكرر! الرجاء اختيار رقم قسط آخر.")
         
         # عرض الدفعات الإضافية الحالية
-        if st.session_state.data["extra_installments"]:
+        if st.session_state.data.get("extra_installments", []):
             st.subheader("الدفعات الإضافية المُدخلة")
             extra_data = pd.DataFrame({
                 "رقم القسط": st.session_state.data["extra_installments"],
@@ -343,6 +369,8 @@ elif st.session_state.step == 8:
         st.session_state.step = 1
         st.session_state.data = {}
         st.session_state.extra_payment_temp = {"installment_num": 1, "amount": 0.0}
+        st.session_state.extra_payment_key = 0
+        initialize_session_state()
         st.rerun()
 
 elif st.session_state.step == 9:
@@ -367,6 +395,8 @@ elif st.session_state.step == 9:
         st.session_state.step = 1
         st.session_state.data = {}
         st.session_state.extra_payment_temp = {"installment_num": 1, "amount": 0.0}
+        st.session_state.extra_payment_key = 0
+        initialize_session_state()
         st.rerun()
 
 elif st.session_state.step == 10:
@@ -406,6 +436,8 @@ elif st.session_state.step == 10:
         st.session_state.step = 1
         st.session_state.data = {}
         st.session_state.extra_payment_temp = {"installment_num": 1, "amount": 0.0}
+        st.session_state.extra_payment_key = 0
+        initialize_session_state()
         st.rerun()
 
 elif st.session_state.step == 11:
@@ -441,21 +473,23 @@ elif st.session_state.step == 11:
         st.session_state.step = 1
         st.session_state.data = {}
         st.session_state.extra_payment_temp = {"installment_num": 1, "amount": 0.0}
+        st.session_state.extra_payment_key = 0
+        initialize_session_state()
         st.rerun()
 
 elif st.session_state.step == 12:
     # حساب المبلغ المتبقي
-    total_extra_amount = sum(st.session_state.data["extra_amounts"])
-    total_annual_amount = st.session_state.data["annual_payment"] * st.session_state.data["years"]
-    total_fixed_amount = st.session_state.data["fixed_amount"] * len(st.session_state.data["fixed_installments"])
-    total_date_amount = sum(st.session_state.data["date_amounts"])
-    total_remaining = (st.session_state.data["total_price"] - st.session_state.data["down_payment"] -
-                      st.session_state.data["delivery_payment"] - total_fixed_amount - total_extra_amount -
+    total_extra_amount = sum(st.session_state.data.get("extra_amounts", []))
+    total_annual_amount = st.session_state.data.get("annual_payment", 0.0) * st.session_state.data.get("years", 0)
+    total_fixed_amount = st.session_state.data.get("fixed_amount", 0.0) * len(st.session_state.data.get("fixed_installments", []))
+    total_date_amount = sum(st.session_state.data.get("date_amounts", []))
+    total_remaining = (st.session_state.data.get("total_price", 0.0) - st.session_state.data.get("down_payment", 0.0) -
+                      st.session_state.data.get("delivery_payment", 0.0) - total_fixed_amount - total_extra_amount -
                       total_annual_amount - total_date_amount)
     
     st.header("الخطوة 12: تأكيد المبلغ المتبقي")
-    st.write(f"المبلغ المتبقي بعد خصم المقدمة ({st.session_state.data['down_payment']})، دفعة الاستلام "
-             f"({st.session_state.data['delivery_payment']})، الدفعات الإضافية ({total_extra_amount + total_annual_amount})، "
+    st.write(f"المبلغ المتبقي بعد خصم المقدمة ({st.session_state.data.get('down_payment', 0.0)})، دفعة الاستلام "
+             f"({st.session_state.data.get('delivery_payment', 0.0)})، الدفعات الإضافية ({total_extra_amount + total_annual_amount})، "
              f"الدفعات الثابتة ({total_fixed_amount})، والدفعات بتواريخ محددة ({total_date_amount}) هو: {total_remaining}")
     confirm = st.selectbox("هل تريد توزيعه كما هو أم تعديله؟", ["اختر...", "توزيع كما هو", "تعديل"])
     if confirm == "تعديل":
@@ -477,16 +511,18 @@ elif st.session_state.step == 12:
         st.session_state.step = 1
         st.session_state.data = {}
         st.session_state.extra_payment_temp = {"installment_num": 1, "amount": 0.0}
+        st.session_state.extra_payment_key = 0
+        initialize_session_state()
         st.rerun()
 
 elif st.session_state.step == 13:
     st.header("الخطوة 13: تحديد إجمالي التشطيب")
     modify_finish = st.selectbox("هل تريد تحديد إجمالي مبلغ التشطيب يدويًا؟", ["اختر...", "نعم", "لا"])
     if modify_finish == "نعم":
-        suggested_finish = st.session_state.data["total_price"] * 0.4
-        finish_total = st.number_input(f"أدخل إجمالي مبلغ التشطيب (المقترح: {suggested_finish}):", min_value=0.0, max_value=st.session_state.data["total_price"], step=1000.0)
+        suggested_finish = st.session_state.data.get("total_price", 0.0) * 0.4
+        finish_total = st.number_input(f"أدخل إجمالي مبلغ التشطيب (المقترح: {suggested_finish}):", min_value=0.0, max_value=st.session_state.data.get("total_price", 0.0), step=1000.0)
     else:
-        finish_total = st.session_state.data["total_price"] * 0.4
+        finish_total = st.session_state.data.get("total_price", 0.0) * 0.4
     if st.button("التالي"):
         if modify_finish != "اختر...":
             st.session_state.data["modify_finish_total"] = "Y" if modify_finish == "نعم" else "N"
@@ -502,11 +538,13 @@ elif st.session_state.step == 13:
         st.session_state.step = 1
         st.session_state.data = {}
         st.session_state.extra_payment_temp = {"installment_num": 1, "amount": 0.0}
+        st.session_state.extra_payment_key = 0
+        initialize_session_state()
         st.rerun()
 
 elif st.session_state.step == 14:
     st.header("الخطوة 14: إدخال مقدمة التشطيب")
-    max_finish_down = min(st.session_state.data["finish_total"], st.session_state.data["down_payment"])
+    max_finish_down = min(st.session_state.data.get("finish_total", 0.0), st.session_state.data.get("down_payment", 0.0))
     finish_down = st.number_input(f"أدخل مبلغ مقدمة التشطيب (من 0 إلى {max_finish_down}):", min_value=0.0, max_value=max_finish_down, step=1000.0)
     if st.button("التالي"):
         st.session_state.data["finish_down"] = finish_down
@@ -519,15 +557,17 @@ elif st.session_state.step == 14:
         st.session_state.step = 1
         st.session_state.data = {}
         st.session_state.extra_payment_temp = {"installment_num": 1, "amount": 0.0}
+        st.session_state.extra_payment_key = 0
+        initialize_session_state()
         st.rerun()
 
 elif st.session_state.step == 15:
     st.header("الخطوة 15: إدخال عدد أقساط التشطيب")
-    max_finish_install = min(16, st.session_state.data["total_installments"])
+    max_finish_install = min(16, st.session_state.data.get("total_installments", 0))
     finish_installments = st.number_input("أدخل عدد أقساط التشطيب (من 0 إلى 16):", min_value=0, max_value=max_finish_install, step=1)
     if st.button("إنشاء الملف"):
-        if (st.session_state.data["finish_total"] == 0 and finish_installments == 0) or \
-           (st.session_state.data["finish_total"] > 0 and finish_installments > 0):
+        if (st.session_state.data.get("finish_total", 0.0) == 0 and finish_installments == 0) or \
+           (st.session_state.data.get("finish_total", 0.0) > 0 and finish_installments > 0):
             st.session_state.data["finish_installments"] = finish_installments
             st.session_state.step = 16
             st.rerun()
@@ -540,6 +580,8 @@ elif st.session_state.step == 15:
         st.session_state.step = 1
         st.session_state.data = {}
         st.session_state.extra_payment_temp = {"installment_num": 1, "amount": 0.0}
+        st.session_state.extra_payment_key = 0
+        initialize_session_state()
         st.rerun()
 
 elif st.session_state.step == 16:
@@ -547,27 +589,27 @@ elif st.session_state.step == 16:
     
     # استخراج البيانات
     data = st.session_state.data
-    unit_name = data["unit_name"]
-    start_date = data["start_date"]
-    period_type = data["period_type"]
-    periods_per_year = data["periods_per_year"]
-    period_months = data["period_months"]
-    total_installments = data["total_installments"]
-    years = data["years"]
-    total_price = data["total_price"]
-    down_payment = data["down_payment"]
-    delivery_payment = data["delivery_payment"]
-    extra_installments = data["extra_installments"]
-    extra_amounts = data["extra_amounts"]
-    annual_payment = data["annual_payment"]
-    fixed_installments = data["fixed_installments"]
-    fixed_amount = data["fixed_amount"]
-    date_payments = data["date_payments"]
-    date_amounts = data["date_amounts"]
-    total_remaining = data["total_remaining"]
-    finish_total = data["finish_total"]
-    finish_down = data["finish_down"]
-    finish_installments = data["finish_installments"]
+    unit_name = data.get("unit_name", "")
+    start_date = data.get("start_date", None)
+    period_type = data.get("period_type", "")
+    periods_per_year = data.get("periods_per_year", 0)
+    period_months = data.get("period_months", 0)
+    total_installments = data.get("total_installments", 0)
+    years = data.get("years", 0)
+    total_price = data.get("total_price", 0.0)
+    down_payment = data.get("down_payment", 0.0)
+    delivery_payment = data.get("delivery_payment", 0.0)
+    extra_installments = data.get("extra_installments", [])
+    extra_amounts = data.get("extra_amounts", [])
+    annual_payment = data.get("annual_payment", 0.0)
+    fixed_installments = data.get("fixed_installments", [])
+    fixed_amount = data.get("fixed_amount", 0.0)
+    date_payments = data.get("date_payments", [])
+    date_amounts = data.get("date_amounts", [])
+    total_remaining = data.get("total_remaining", 0.0)
+    finish_total = data.get("finish_total", 0.0)
+    finish_down = data.get("finish_down", 0.0)
+    finish_installments = data.get("finish_installments", 0)
     
     # التحقق من عدم التداخل
     annual_installments = [i * periods_per_year for i in range(1, years + 1)]
@@ -575,13 +617,13 @@ elif st.session_state.step == 16:
         if i in fixed_installments or i in extra_installments:
             st.error(f"القسط {i} مدرج كدفعة ثابتة أو إضافية! لا يمكن التداخل.")
             st.button("الرجوع", on_click=lambda: setattr(st.session_state, "step", 11))
-            st.button("إلغاء", on_click=lambda: [setattr(st.session_state, "step", 1), st.session_state.data.clear(), setattr(st.session_state, "extra_payment_temp", {"installment_num": 1, "amount": 0.0})])
+            st.button("إلغاء", on_click=lambda: [setattr(st.session_state, "step", 1), setattr(st.session_state, "data", {}), setattr(st.session_state, "extra_payment_temp", {"installment_num": 1, "amount": 0.0}), setattr(st.session_state, "extra_payment_key", 0), initialize_session_state()])
             st.stop()
     for i in fixed_installments:
         if i in extra_installments:
             st.error(f"القسط {i} مدرج كدفعة ثابتة وإضافية! لا يمكن التداخل.")
             st.button("الرجوع", on_click=lambda: setattr(st.session_state, "step", 10))
-            st.button("إلغاء", on_click=lambda: [setattr(st.session_state, "step", 1), st.session_state.data.clear(), setattr(st.session_state, "extra_payment_temp", {"installment_num": 1, "amount": 0.0})])
+            st.button("إلغاء", on_click=lambda: [setattr(st.session_state, "step", 1), setattr(st.session_state, "data", {}), setattr(st.session_state, "extra_payment_temp", {"installment_num": 1, "amount": 0.0}), setattr(st.session_state, "extra_payment_key", 0), initialize_session_state()])
             st.stop()
     
     # حساب المبالغ
@@ -957,8 +999,8 @@ elif st.session_state.step == 16:
     for col in range(1, 8):
         ws_combined.cell(row_index, col).fill = blue_fill
         ws_combined.cell(row_index, col).font = white_font
-        ws_combined.cell(row_index, col).border = Border(top=Side(style="medium"), bottom=Side(style="medium"), left=Side(style="medium"), right=Side(style="medium"))
-        ws_combined.cell(row_index, col).alignment = Alignment(horizontal="center")
+        ws_combined.cell(row_index, 4).border = Border(top=Side(style="medium"), bottom=Side(style="medium"), left=Side(style="medium"), right=Side(style="medium"))
+        ws_combined.cell(row_index, 4).alignment = Alignment(horizontal="center")
     
     # تنسيق الأعمدة
     for ws in [ws_unit, ws_finish]:
@@ -999,4 +1041,6 @@ elif st.session_state.step == 16:
         st.session_state.step = 1
         st.session_state.data = {}
         st.session_state.extra_payment_temp = {"installment_num": 1, "amount": 0.0}
+        st.session_state.extra_payment_key = 0
+        initialize_session_state()
         st.rerun()
