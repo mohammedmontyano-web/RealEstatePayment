@@ -128,6 +128,9 @@ if "step" not in st.session_state:
         "finish_down": 0.0,
         "finish_installments": 0
     }
+# إضافة مفتاح مؤقت للدفعات الإضافية
+if "extra_payment_temp" not in st.session_state:
+    st.session_state.extra_payment_temp = {"installment_num": 1, "amount": 0.0}
 
 # دالة للتحقق من صحة التاريخ
 def is_valid_date(date_str):
@@ -161,6 +164,7 @@ if st.session_state.step == 1:
     if st.button("إلغاء"):
         st.session_state.step = 1
         st.session_state.data = {}
+        st.session_state.extra_payment_temp = {"installment_num": 1, "amount": 0.0}
         st.rerun()
 
 elif st.session_state.step == 2:
@@ -178,6 +182,7 @@ elif st.session_state.step == 2:
     if st.button("إلغاء"):
         st.session_state.step = 1
         st.session_state.data = {}
+        st.session_state.extra_payment_temp = {"installment_num": 1, "amount": 0.0}
         st.rerun()
 
 elif st.session_state.step == 3:
@@ -205,6 +210,7 @@ elif st.session_state.step == 3:
     if st.button("إلغاء"):
         st.session_state.step = 1
         st.session_state.data = {}
+        st.session_state.extra_payment_temp = {"installment_num": 1, "amount": 0.0}
         st.rerun()
 
 elif st.session_state.step == 4:
@@ -229,6 +235,7 @@ elif st.session_state.step == 4:
     if st.button("إلغاء"):
         st.session_state.step = 1
         st.session_state.data = {}
+        st.session_state.extra_payment_temp = {"installment_num": 1, "amount": 0.0}
         st.rerun()
 
 elif st.session_state.step == 5:
@@ -247,6 +254,7 @@ elif st.session_state.step == 5:
     if st.button("إلغاء"):
         st.session_state.step = 1
         st.session_state.data = {}
+        st.session_state.extra_payment_temp = {"installment_num": 1, "amount": 0.0}
         st.rerun()
 
 elif st.session_state.step == 6:
@@ -262,6 +270,7 @@ elif st.session_state.step == 6:
     if st.button("إلغاء"):
         st.session_state.step = 1
         st.session_state.data = {}
+        st.session_state.extra_payment_temp = {"installment_num": 1, "amount": 0.0}
         st.rerun()
 
 elif st.session_state.step == 7:
@@ -278,21 +287,48 @@ elif st.session_state.step == 7:
     if st.button("إلغاء"):
         st.session_state.step = 1
         st.session_state.data = {}
+        st.session_state.extra_payment_temp = {"installment_num": 1, "amount": 0.0}
         st.rerun()
 
 elif st.session_state.step == 8:
     st.header("الخطوة 8: إضافة دفعات إضافية")
-    add_extra = st.selectbox("هل تريد إضافة دفعات إضافية في أقساط محددة؟", ["اختر...", "نعم", "لا"])
-    if add_extra == "نعم" and st.button("إضافة دفعة"):
-        installment_num = st.number_input("أدخل رقم القسط:", min_value=1, max_value=st.session_state.data["total_installments"], step=1)
-        amount = st.number_input("أدخل مبلغ الدفعة الإضافية:", min_value=0.0, step=1000.0)
-        if st.button("تأكيد الدفعة"):
-            if installment_num not in st.session_state.data["extra_installments"]:
-                st.session_state.data["extra_installments"].append(installment_num)
-                st.session_state.data["extra_amounts"].append(amount)
-                st.success(f"تم إضافة دفعة إضافية للقسط {installment_num}")
-            else:
-                st.error("رقم القسط مكرر!")
+    add_extra = st.selectbox("هل تريد إضافة دفعات إضافية في أقساط محددة؟", ["اختر...", "نعم", "لا"], key="add_extra_select")
+
+    if add_extra == "نعم":
+        st.subheader("إدخال دفعة إضافية")
+        # عرض الحقول في حاوية منفصلة
+        with st.container():
+            col1, col2, col3 = st.columns([2, 2, 1])
+            with col1:
+                installment_num = st.number_input("أدخل رقم القسط:", min_value=1, max_value=st.session_state.data["total_installments"], step=1, key=f"installment_num_{st.session_state.get('extra_payment_key', 0)}")
+            with col2:
+                amount = st.number_input("أدخل مبلغ الدفعة الإضافية:", min_value=0.0, step=1000.0, key=f"amount_{st.session_state.get('extra_payment_key', 0)}")
+            with col3:
+                if st.button("تأكيد الدفعة", key=f"confirm_extra_{st.session_state.get('extra_payment_key', 0)}"):
+                    if installment_num not in st.session_state.data["extra_installments"]:
+                        st.session_state.data["extra_installments"].append(installment_num)
+                        st.session_state.data["extra_amounts"].append(amount)
+                        st.session_state.extra_payment_temp = {"installment_num": 1, "amount": 0.0}  # إعادة تعيين الحقول
+                        st.session_state["extra_payment_key"] = st.session_state.get("extra_payment_key", 0) + 1  # تحديث المفتاح
+                        st.success(f"تم إضافة دفعة إضافية للقسط {installment_num}")
+                    else:
+                        st.error("رقم القسط مكرر!")
+        
+        # عرض الدفعات الإضافية الحالية
+        if st.session_state.data["extra_installments"]:
+            st.subheader("الدفعات الإضافية المُدخلة")
+            extra_data = pd.DataFrame({
+                "رقم القسط": st.session_state.data["extra_installments"],
+                "المبلغ": st.session_state.data["extra_amounts"]
+            })
+            st.table(extra_data)
+            # إضافة زر إزالة لكل دفعة
+            for i, (inst, amt) in enumerate(zip(st.session_state.data["extra_installments"], st.session_state.data["extra_amounts"])):
+                if st.button(f"إزالة القسط {inst}", key=f"remove_extra_{i}"):
+                    st.session_state.data["extra_installments"].pop(i)
+                    st.session_state.data["extra_amounts"].pop(i)
+                    st.rerun()
+
     if st.button("التالي"):
         if add_extra != "اختر...":
             st.session_state.data["add_extra_payment"] = "Y" if add_extra == "نعم" else "N"
@@ -306,6 +342,7 @@ elif st.session_state.step == 8:
     if st.button("إلغاء"):
         st.session_state.step = 1
         st.session_state.data = {}
+        st.session_state.extra_payment_temp = {"installment_num": 1, "amount": 0.0}
         st.rerun()
 
 elif st.session_state.step == 9:
@@ -329,6 +366,7 @@ elif st.session_state.step == 9:
     if st.button("إلغاء"):
         st.session_state.step = 1
         st.session_state.data = {}
+        st.session_state.extra_payment_temp = {"installment_num": 1, "amount": 0.0}
         st.rerun()
 
 elif st.session_state.step == 10:
@@ -367,6 +405,7 @@ elif st.session_state.step == 10:
     if st.button("إلغاء"):
         st.session_state.step = 1
         st.session_state.data = {}
+        st.session_state.extra_payment_temp = {"installment_num": 1, "amount": 0.0}
         st.rerun()
 
 elif st.session_state.step == 11:
@@ -401,6 +440,7 @@ elif st.session_state.step == 11:
     if st.button("إلغاء"):
         st.session_state.step = 1
         st.session_state.data = {}
+        st.session_state.extra_payment_temp = {"installment_num": 1, "amount": 0.0}
         st.rerun()
 
 elif st.session_state.step == 12:
@@ -436,6 +476,7 @@ elif st.session_state.step == 12:
     if st.button("إلغاء"):
         st.session_state.step = 1
         st.session_state.data = {}
+        st.session_state.extra_payment_temp = {"installment_num": 1, "amount": 0.0}
         st.rerun()
 
 elif st.session_state.step == 13:
@@ -460,6 +501,7 @@ elif st.session_state.step == 13:
     if st.button("إلغاء"):
         st.session_state.step = 1
         st.session_state.data = {}
+        st.session_state.extra_payment_temp = {"installment_num": 1, "amount": 0.0}
         st.rerun()
 
 elif st.session_state.step == 14:
@@ -476,6 +518,7 @@ elif st.session_state.step == 14:
     if st.button("إلغاء"):
         st.session_state.step = 1
         st.session_state.data = {}
+        st.session_state.extra_payment_temp = {"installment_num": 1, "amount": 0.0}
         st.rerun()
 
 elif st.session_state.step == 15:
@@ -496,6 +539,7 @@ elif st.session_state.step == 15:
     if st.button("إلغاء"):
         st.session_state.step = 1
         st.session_state.data = {}
+        st.session_state.extra_payment_temp = {"installment_num": 1, "amount": 0.0}
         st.rerun()
 
 elif st.session_state.step == 16:
@@ -531,13 +575,13 @@ elif st.session_state.step == 16:
         if i in fixed_installments or i in extra_installments:
             st.error(f"القسط {i} مدرج كدفعة ثابتة أو إضافية! لا يمكن التداخل.")
             st.button("الرجوع", on_click=lambda: setattr(st.session_state, "step", 11))
-            st.button("إلغاء", on_click=lambda: [setattr(st.session_state, "step", 1), st.session_state.data.clear()])
+            st.button("إلغاء", on_click=lambda: [setattr(st.session_state, "step", 1), st.session_state.data.clear(), setattr(st.session_state, "extra_payment_temp", {"installment_num": 1, "amount": 0.0})])
             st.stop()
     for i in fixed_installments:
         if i in extra_installments:
             st.error(f"القسط {i} مدرج كدفعة ثابتة وإضافية! لا يمكن التداخل.")
             st.button("الرجوع", on_click=lambda: setattr(st.session_state, "step", 10))
-            st.button("إلغاء", on_click=lambda: [setattr(st.session_state, "step", 1), st.session_state.data.clear()])
+            st.button("إلغاء", on_click=lambda: [setattr(st.session_state, "step", 1), st.session_state.data.clear(), setattr(st.session_state, "extra_payment_temp", {"installment_num": 1, "amount": 0.0})])
             st.stop()
     
     # حساب المبالغ
@@ -888,10 +932,10 @@ elif st.session_state.step == 16:
     ws_unit.cell(row_index, 4).value = total_unit_sum - unit_down
     ws_unit.cell(row_index, 5).value = number_to_arabic_text(total_unit_sum - unit_down)
     for col in range(1, 6):
-        ws_unit.cell(row_index, col).fill = blue_fill
-        ws_unit.cell(row_index, col).font = white_font
-        ws_unit.cell(row_index, col).border = Border(top=Side(style="medium"), bottom=Side(style="medium"), left=Side(style="medium"), right=Side(style="medium"))
-        ws_unit.cell(row_index, col).alignment = Alignment(horizontal="center")
+        ws_unit.cell(row_index, 4).fill = blue_fill
+        ws_unit.cell(row_index, 4).font = white_font
+        ws_unit.cell(row_index, 4).border = Border(top=Side(style="medium"), bottom=Side(style="medium"), left=Side(style="medium"), right=Side(style="medium"))
+        ws_unit.cell(row_index, 4).alignment = Alignment(horizontal="center")
     
     if finish_installments > 0:
         finish_row_index = 4 + len(sorted_dates)
@@ -954,4 +998,5 @@ elif st.session_state.step == 16:
     if st.button("إعادة البدء"):
         st.session_state.step = 1
         st.session_state.data = {}
+        st.session_state.extra_payment_temp = {"installment_num": 1, "amount": 0.0}
         st.rerun()
