@@ -489,8 +489,9 @@ elif st.session_state.step == 12:
     
     st.header("الخطوة 12: تأكيد المبلغ المتبقي")
     st.write(f"المبلغ المتبقي بعد خصم المقدمة ({st.session_state.data.get('down_payment', 0.0)})، دفعة الاستلام "
-             f"({st.session_state.data.get('delivery_payment', 0.0)})، الدفعات الإضافية ({total_extra_amount + total_annual_amount})، "
-             f"الدفعات الثابتة ({total_fixed_amount})، والدفعات بتواريخ محددة ({total_date_amount}) هو: {total_remaining}")
+             f"({st.session_state.data.get('delivery_payment', 0.0)})، الدفعات الإضافية ({total_extra_amount})، "
+             f"الدفعات السنوية ({total_annual_amount})، الدفعات الثابتة ({total_fixed_amount})، "
+             f"والدفعات بتواريخ محددة ({total_date_amount}) هو: {total_remaining}")
     confirm = st.selectbox("هل تريد توزيعه كما هو أم تعديله؟", ["اختر...", "توزيع كما هو", "تعديل"])
     if confirm == "تعديل":
         new_remaining = st.number_input("أدخل القيمة الجديدة للمتبقي:", min_value=0.0, step=1000.0)
@@ -632,17 +633,27 @@ elif st.session_state.step == 16:
     finish_remaining = finish_total - finish_down
     unit_remaining = unit_total - unit_down - delivery_payment
     
-    non_fixed_installments = total_installments - len(fixed_installments)
-    if non_fixed_installments <= 0 and total_remaining > 0:
-        st.error(f"جميع الأقساط ثابتة! يجب أن يكون هناك أقساط عادية لتوزيع المبلغ المتبقي ({total_remaining}).")
+    # حساب إجمالي الدفعات الإضافية والثابتة والسنوية
+    total_extra_amount = sum(extra_amounts)
+    total_annual_amount = annual_payment * len(annual_installments)
+    total_fixed_amount = fixed_amount * len(fixed_installments)
+    total_date_amount = sum(date_amounts)
+    
+    # حساب المبلغ المتبقي لتوزيعه على الأقساط العادية
+    remaining_for_regular = total_remaining - total_extra_amount - total_annual_amount - total_fixed_amount - total_date_amount
+    non_fixed_installments = total_installments - len(fixed_installments) - len(extra_installments) - len(annual_installments)
+    
+    if non_fixed_installments <= 0 and remaining_for_regular > 0:
+        st.error(f"جميع الأقساط محددة (ثابتة أو إضافية أو سنوية)! يجب أن يكون هناك أقساط عادية لتوزيع المبلغ المتبقي ({remaining_for_regular}).")
         st.button("الرجوع", on_click=lambda: setattr(st.session_state, "step", 10))
         st.stop()
     
-    property_install = int(total_remaining / non_fixed_installments / 1000) * 1000 if non_fixed_installments > 0 else 0
-    property_rem = total_remaining - (property_install * non_fixed_installments)
+    # حساب القسط العادي
+    property_install = int(remaining_for_regular / non_fixed_installments / 1000) * 1000 if non_fixed_installments > 0 else 0
+    property_rem = remaining_for_regular - (property_install * non_fixed_installments)
     if property_rem < 0:
-        property_install = int((total_remaining / non_fixed_installments) / 1000) * 1000 - 1000
-        property_rem = total_remaining - (property_install * non_fixed_installments)
+        property_install = int((remaining_for_regular / non_fixed_installments) / 1000) * 1000 - 1000
+        property_rem = remaining_for_regular - (property_install * non_fixed_installments)
         if property_rem < 0:
             property_rem = 0
     
@@ -786,7 +797,7 @@ elif st.session_state.step == 16:
     finish_rem = 0
     large_installments = []
     
-    regular_installments = non_fixed_installments - len(annual_installments)
+    regular_installments = non_fixed_installments
     regular_finish_install = round((current_finish_remaining / finish_installments) / 1000) * 1000 if regular_installments > 0 and finish_installments > 0 else 0
     if regular_finish_install > property_install * 0.6:
         regular_finish_install = round((property_install * 0.6) / 1000) * 1000
@@ -814,11 +825,11 @@ elif st.session_state.step == 16:
             if is_fixed_installment:
                 this_total_install = fixed_amount
             elif is_extra_installment:
-                this_total_install = property_install + extra_amount + extra_from_date
+                this_total_install = extra_amount + extra_from_date
+            elif is_annual_installment:
+                this_total_install = property_install + annual_payment + extra_from_date
             else:
                 this_total_install = property_install + extra_from_date
-                if is_annual_installment:
-                    this_total_install += annual_payment
             
             if i == total_installments:
                 this_total_install += property_rem
